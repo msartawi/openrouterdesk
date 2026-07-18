@@ -19,10 +19,10 @@ jobs:
     environment: release-candidate
     steps:
       - name: Checkout
-        uses: actions/checkout@v5
+        uses: actions/checkout@v7
 
       - name: Set up Node.js
-        uses: actions/setup-node@v5
+        uses: actions/setup-node@v7
         with:
           node-version: 24
           cache: npm
@@ -47,7 +47,7 @@ jobs:
           subject-path: release/*
 
       - name: Upload unsigned candidate
-        uses: actions/upload-artifact@v6
+        uses: actions/upload-artifact@v7
         with:
           name: openrouterdesk-unsigned-release-candidate
           path: release/*
