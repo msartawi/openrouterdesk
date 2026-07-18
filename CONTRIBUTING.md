@@ -4,7 +4,7 @@ Thank you for helping make router management safer and more transparent.
 
 ## Before opening a pull request
 
-- Read `AGENT.md` and `docs/THREAT_MODEL.md`.
+- Read `docs/THREAT_MODEL.md` and this file.
 - Open or reference an issue for non-trivial work.
 - Keep adapters read-only unless the write-safety requirements are fully met.
 - Use sanitized fixtures rather than live credentials or complete private configurations.

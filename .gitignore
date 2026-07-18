@@ -11,6 +11,9 @@ coverage/
 Thumbs.db
 .vscode/settings.json
 .cursor/
+AGENT.md
+AGENTS.md
+docs/ORCHESTRATION.md
 research/private/
 *.har
 *.pcap

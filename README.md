@@ -29,7 +29,7 @@ See [ADR 0001](docs/decisions/0001-electron.md) for the decision and alternative
 ## Start here
 
 1. Read [START_HERE.md](START_HERE.md).
-2. Read [AGENT.md](AGENT.md) before assigning work to an AI coding agent.
+2. Read [CONTRIBUTING.md](CONTRIBUTING.md) and [docs/THREAT_MODEL.md](docs/THREAT_MODEL.md) before contributing.
 3. Install Node.js 24 LTS or the version declared in `.nvmrc`.
 4. Run:
 

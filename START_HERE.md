@@ -1,6 +1,6 @@
 # Start Here
 
-This file is the recommended entry point for a human maintainer or coding agent.
+This file is the recommended entry point for maintainers and contributors.
 
 ## Project objective
 
@@ -31,6 +31,6 @@ A change is safe when:
 - An adapter failure cannot crash the whole application.
 - Documentation and an ADR are updated when architecture changes.
 
-## Immediate agent task
+## Immediate next work
 
-The first coding agent should complete the tasks in `docs/backlog/PHASE_0_BOOTSTRAP.md`, one pull request at a time. It must not implement router writes or firmware upload.
+Start with the tasks in `docs/backlog/PHASE_0_BOOTSTRAP.md`, one pull request at a time. Do not implement router writes or firmware upload until the write-safety gates exist.
