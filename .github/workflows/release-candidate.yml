@@ -47,7 +47,7 @@ jobs:
           subject-path: release/*
 
       - name: Upload unsigned candidate
-        uses: actions/upload-artifact@v6
+        uses: actions/upload-artifact@v7
         with:
           name: openrouterdesk-unsigned-release-candidate
           path: release/*
