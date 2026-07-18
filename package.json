@@ -1,0 +1,45 @@
+{
+  "name": "openrouterdesk",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Security-first open-source Windows desktop manager for supported routers, beginning with ZTE F6600P.",
+  "license": "MIT",
+  "author": "OpenRouterDesk contributors",
+  "main": "dist-electron/main/index.js",
+  "engines": {
+    "node": ">=24.0.0"
+  },
+  "scripts": {
+    "dev": "concurrently -k -n renderer,main,electron \"npm:dev:renderer\" \"npm:dev:main\" \"npm:dev:electron\"",
+    "dev:renderer": "vite --host 127.0.0.1",
+    "dev:main": "tsc -p tsconfig.main.json --watch --preserveWatchOutput",
+    "dev:electron": "wait-on tcp:127.0.0.1:5173 file:dist-electron/main/index.js && cross-env VITE_DEV_SERVER_URL=http://127.0.0.1:5173 electron .",
+    "build": "npm run clean && npm run build:main && npm run build:renderer",
+    "build:main": "tsc -p tsconfig.main.json",
+    "build:renderer": "vite build",
+    "clean": "node scripts/clean.mjs",
+    "typecheck": "tsc -p tsconfig.main.json --noEmit && tsc -p tsconfig.renderer.json --noEmit",
+    "test": "vitest run --root .",
+    "check": "npm run typecheck && npm run test && npm run build",
+    "dist:win": "npm run build && electron-builder --win nsis",
+    "dist:store": "npm run build && electron-builder --config electron-builder.store.yml --win appx",
+    "postinstall": "electron-builder install-app-deps"
+  },
+  "dependencies": {
+    "react": "^19.2.0",
+    "react-dom": "^19.2.0"
+  },
+  "devDependencies": {
+    "@types/node": "^24.0.0",
+    "@types/react": "^19.2.0",
+    "@types/react-dom": "^19.2.0",
+    "concurrently": "^9.2.1",
+    "cross-env": "^10.0.0",
+    "electron": "43.1.1",
+    "electron-builder": "^26.15.6",
+    "typescript": "^6.0.0",
+    "vite": "^8.1.5",
+    "vitest": "^4.0.0",
+    "wait-on": "^9.0.1"
+  }
+}

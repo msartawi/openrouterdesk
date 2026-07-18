@@ -1,0 +1,8 @@
+# Primary owner until an org team (@openrouterdesk/openrouterdesk-maintainers) exists.
+* @msartawi
+
+/.github/workflows/ @msartawi
+/electron-builder*.yml @msartawi
+/src/main/security/ @msartawi
+/src/services/credentialVault.ts @msartawi
+/src/adapters/ @msartawi

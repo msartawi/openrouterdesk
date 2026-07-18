@@ -1,0 +1,16 @@
+extends: ./electron-builder.yml
+
+win:
+  target:
+    - target: appx
+      arch:
+        - x64
+  artifactName: ${productName}-${version}-Windows-${arch}.${ext}
+
+appx:
+  applicationId: OpenRouterDesk
+  identityName: REPLACE_WITH_PARTNER_CENTER_IDENTITY_NAME
+  publisher: REPLACE_WITH_PARTNER_CENTER_PUBLISHER
+  publisherDisplayName: REPLACE_WITH_PUBLISHER_DISPLAY_NAME
+  displayName: OpenRouterDesk
+  backgroundColor: transparent

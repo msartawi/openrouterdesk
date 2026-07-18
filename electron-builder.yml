@@ -1,0 +1,33 @@
+appId: io.ozzmo.openrouterdesk
+productName: OpenRouterDesk
+copyright: Copyright © 2026 OpenRouterDesk contributors
+
+directories:
+  output: release
+  buildResources: build
+
+files:
+  - dist-electron/**/*
+  - dist-renderer/**/*
+  - package.json
+
+asar: true
+compression: maximum
+
+win:
+  target:
+    - target: nsis
+      arch:
+        - x64
+  artifactName: ${productName}-${version}-Windows-${arch}-Setup.${ext}
+  requestedExecutionLevel: asInvoker
+
+nsis:
+  oneClick: false
+  perMachine: false
+  allowToChangeInstallationDirectory: true
+  createDesktopShortcut: true
+  createStartMenuShortcut: true
+  deleteAppDataOnUninstall: false
+
+publish: null
