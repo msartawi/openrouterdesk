@@ -114,7 +114,7 @@ Feature flags do not prove the backend capability exists or is safe to enable.
 3. Capture sanitized fixtures for `OBJ_LOOPBACK_VLAN_ID` (read) and the exact `_type`/`_tag` URL that returned it.
 4. Capture the page-entry / `menuView` sequence that precedes a successful VLAN read after `SessionTimeout` responses.
 5. Capture `accessdev_data` / `OBJ_ACCESSDEV_ID` response and build a sanitized fixture.
-6. Build an automated tag-discovery pass over authenticated GUI navigation (see discovery framework doc).
-7. Identify backup/export and firmware-information requests through browser devtools.
+6. Run Stage 1 of external **`openrouter-capture`** (`discover`) for menu/endpoint catalog — see [OPENROUTER_CAPTURE.md](OPENROUTER_CAPTURE.md); keep raw output local.
+7. Identify backup/export and firmware-information requests (capture tool or DevTools).
 8. Map firewall and remaining VLAN pages to read-only endpoints.
 9. Do not invoke write or upload endpoints from the app until write-safety gates exist.

@@ -126,10 +126,11 @@ Authorized GUI session
 6. Enumerate tags with broad JS/HTML discovery; scan read-only with rate limits.
 7. Keep writes disabled until `router-safety` + ADR 0003 gates exist.
 
-See [ROUTER_RE_TOOLKIT.md](ROUTER_RE_TOOLKIT.md) for the full execution-gap checklist.
+See [ROUTER_RE_TOOLKIT.md](ROUTER_RE_TOOLKIT.md) for the full execution-gap checklist. Prefer producing bulk catalogs with external [OPENROUTER_CAPTURE.md](OPENROUTER_CAPTURE.md), then hand-curate fixtures into this repo.
 
 ## Related docs
 
+- [OPENROUTER_CAPTURE.md](OPENROUTER_CAPTURE.md) — standalone discovery CLI (external to this repo)
 - [ROUTER_RE_TOOLKIT.md](ROUTER_RE_TOOLKIT.md) — phased toolkit + preferred monorepo layout
 - [RESEARCH_NOTES_F6600P.md](RESEARCH_NOTES_F6600P.md)
 - [API_REVERSE_ENGINEERING.md](API_REVERSE_ENGINEERING.md)
@@ -138,3 +139,4 @@ See [ROUTER_RE_TOOLKIT.md](ROUTER_RE_TOOLKIT.md) for the full execution-gap chec
 - [decisions/0002-adapter-architecture.md](decisions/0002-adapter-architecture.md)
 - [decisions/0003-safe-write-operations.md](decisions/0003-safe-write-operations.md)
 - [decisions/0005-router-re-toolkit.md](decisions/0005-router-re-toolkit.md)
+- [decisions/0007-standalone-capture-tool.md](decisions/0007-standalone-capture-tool.md)
