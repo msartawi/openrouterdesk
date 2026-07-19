@@ -9,16 +9,24 @@
 - Make backup and recovery status visible.
 - Provide keyboard navigation and accessible contrast.
 - Avoid jargon where a household user needs to make a decision.
+- Prefer **Review changes** / **Apply safely** over one-click Apply.
+
+## Visual direction
+
+Product UI direction is **Spatial Network Console** (premium network OS feel, selective 3D, ORD Spatial UI). See [ORD_SPATIAL_UI.md](ORD_SPATIAL_UI.md). Design review only until implementation is scheduled; Electron security boundaries in [HLA.md](HLA.md) are non-negotiable.
 
 ## Main navigation
 
-- Dashboard
-- Routers
+Align with the spatial shell rail (labels may evolve):
+
+- Overview / Dashboard
+- Network map (topology)
+- Internet · LAN · Wi-Fi
 - Devices
-- Topology
-- Firewall
 - VLANs
+- Firewall · Port forwarding
+- Diagnostics · Inspector
 - Backups
-- Firmware
-- Audit
 - Settings
+
+Also reachable via command palette (`Ctrl+K`): routers, devices, actions (risky actions warn and never run immediately).
