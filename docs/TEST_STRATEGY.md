@@ -31,6 +31,12 @@ On Windows CI or a controlled runner:
 
 Real-router tests are opt-in and never run in public CI. They require explicit target authorization and must default to read-only operations.
 
+```bash
+RUN_LIVE_ROUTER_TESTS=true pnpm test:live
+```
+
+Toolkit testing modes (unit, recorded-response, mock-router, live) are defined in [ROUTER_RE_TOOLKIT.md](ROUTER_RE_TOOLKIT.md) (`router-testing`).
+
 ## Security regression tests
 
 - Navigation and new-window blocking.
