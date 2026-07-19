@@ -20,7 +20,7 @@ Observed F6600P evidence (`OBJ_LOOPBACK_VLAN_ID`, Apply `VidStr`, `SessionTimeou
 openrouterdesk/
 ├── apps/
 │   ├── desktop/                 # OpenRouterDesk (product)
-│   └── inspector/               # First-class RE workspace (lab)
+│   └── inspector/               # Optional later: import redacted captures (NOT the crawler)
 ├── packages/
 │   ├── router-core/             # Session orchestration façade
 │   ├── router-auth/             # Login strategies, crypto, lockout
@@ -43,12 +43,14 @@ openrouterdesk/
 │   │   └── h3601p/
 │   └── generic/
 ├── fixtures/
-│   ├── responses/               # Sanitized XML/HTML bodies
-│   └── captures/                # Redacted CapturedExchange sets
+│   ├── responses/               # Sanitized XML/HTML bodies (hand-curated)
+│   └── captures/                # Redacted CapturedExchange sets only (no raw HARs)
 ├── docs/
 ├── examples/
 └── tests/
 ```
+
+**API discovery crawler:** lives outside this tree as standalone **`openrouter-capture`** (sibling project). See [OPENROUTER_CAPTURE.md](OPENROUTER_CAPTURE.md) and [ADR 0007](decisions/0007-standalone-capture-tool.md). Do not embed Playwright crawling in the Electron app.
 
 Migration note: keep current `src/` until packages exist. Do not big-bang restructure.
 
@@ -242,9 +244,9 @@ Normal CI must never modify a real router. See [TEST_STRATEGY.md](TEST_STRATEGY.
 
 ---
 
-## Gap 10 — Inspector as first-class app (`apps/inspector`)
+## Gap 10 — Optional capture viewer (`apps/inspector`, later)
 
-Lab workspace features:
+Optional Electron UI that **imports** redacted capture trees produced by external **`openrouter-capture`**. It is not the Playwright crawler and is not MVP. Features when built:
 
 - Network capture import  
 - Endpoint list + risk level  
@@ -256,7 +258,7 @@ Lab workspace features:
 - Firmware / model metadata  
 - Export to router profile  
 
-Must not ship unrestricted write tooling in production desktop builds.
+Primary discovery remains [OPENROUTER_CAPTURE.md](OPENROUTER_CAPTURE.md). Must not ship unrestricted write tooling in production desktop builds.
 
 ---
 
@@ -304,13 +306,13 @@ Login, cookies, timeout detection, re-login, logout, lockout protection, warm-up
 
 Generic `OBJ_*` parse with edge cases above; unit tests from fixtures.
 
-### Phase C — Discovery + scanner (`router-discovery`)
+### Phase C — Discovery + scanner
 
-Broad static/dynamic discovery; **read-only** scanner with rate limits; emit `report.json`.
+In-app `router-discovery` packages consume fixtures. **Live menu crawling** is performed by external **`openrouter-capture`** (`discover` / `simulate`), not by the Electron app. See [OPENROUTER_CAPTURE.md](OPENROUTER_CAPTURE.md).
 
 ### Phase D — Capture + schema (`router-capture`, `router-schema`, `router-generator`)
 
-Normalized exchanges; provisional inference; promote types carefully.
+Normalized exchanges; provisional inference; promote types carefully. Ingest sanitized outputs from `openrouter-capture`.
 
 ### Phase E — Safety + SDK (`router-safety`, `router-sdk`, `vendors/*`)
 
@@ -318,24 +320,25 @@ Read APIs first; writes only through `applyChange` / transactions.
 
 ### Phase F — Apps
 
-`apps/desktop` consumes SDK via IPC. `apps/inspector` is the RE workspace.
+`apps/desktop` consumes SDK via IPC. Optional later `apps/inspector` imports redacted captures for viewing only.
 
 ---
 
 ## Practical implementation order
 
-1. Sanitized `OBJ_LOOPBACK_VLAN_ID` fixture + warm-up capture (`CapturedExchange`).  
+1. Sanitized `OBJ_LOOPBACK_VLAN_ID` fixture + warm-up capture (`CapturedExchange`) — preferably via external `openrouter-capture` then hand-curate into `fixtures/`.  
 2. Parser + edge-case unit tests.  
 3. Auth strategy for F6600P firmware profile (lab only).  
-4. Read-only discovery/scanner with rate limits.  
+4. Continue Stage 1–2 of `openrouter-capture` for broader read/simulate coverage (outside this repo).  
 5. Provisional schemas → cautious SDK reads in desktop.  
-6. Inspector MVP (import capture, XML tree, endpoint list).  
+6. Optional inspector MVP (import capture only).  
 7. Writes only after safety transaction + ADR 0003 gates.
 
 ---
 
 ## Related docs
 
+- [OPENROUTER_CAPTURE.md](OPENROUTER_CAPTURE.md) — standalone discovery CLI (external)
 - [ZTE_API_DISCOVERY_FRAMEWORK.md](ZTE_API_DISCOVERY_FRAMEWORK.md)
 - [API_REVERSE_ENGINEERING.md](API_REVERSE_ENGINEERING.md)
 - [ROUTER_ADAPTER_CONTRACT.md](ROUTER_ADAPTER_CONTRACT.md)
@@ -346,3 +349,4 @@ Read APIs first; writes only through `applyChange` / transactions.
 - [decisions/0002-adapter-architecture.md](decisions/0002-adapter-architecture.md)
 - [decisions/0003-safe-write-operations.md](decisions/0003-safe-write-operations.md)
 - [decisions/0005-router-re-toolkit.md](decisions/0005-router-re-toolkit.md)
+- [decisions/0007-standalone-capture-tool.md](decisions/0007-standalone-capture-tool.md)

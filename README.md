@@ -88,6 +88,7 @@ src/
 
 docs/                   Architecture, plans, security, research, UI direction
                         (START_HERE.md; toolkit: ROUTER_RE_TOOLKIT.md;
+                        capture helper: OPENROUTER_CAPTURE.md;
                         UI: ORD_SPATIAL_UI.md)
 .github/                 CI, release, issue and PR templates
 scripts/                 Reproducible build and verification scripts

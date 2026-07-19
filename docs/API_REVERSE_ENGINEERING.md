@@ -28,6 +28,8 @@ For each endpoint record:
 
 Prefer the normalized `CapturedExchange` shape (method, path, query, redacted headers/body, status, `sessionState`) described in [ROUTER_RE_TOOLKIT.md](ROUTER_RE_TOOLKIT.md). Auto-redact `password`, `SID`, `token`, `nonce`, and `authorization` before any commit.
 
+For bulk menu/endpoint discovery, use the external local helper **`openrouter-capture`** (Playwright, discover/simulate/verify modes)—not the Electron app. Methodology: [OPENROUTER_CAPTURE.md](OPENROUTER_CAPTURE.md). Manual DevTools capture remains valid for single actions.
+
 ## F6600P currently observed
 
 ```text

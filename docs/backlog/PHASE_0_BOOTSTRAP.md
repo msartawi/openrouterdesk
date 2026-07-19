@@ -43,6 +43,7 @@ Each item should normally be a separate pull request.
 
 - Add a sanitized fixture for `OBJ_LOOPBACK_VLAN_ID` (see research notes / discovery framework).
 - Record the exact `_type`/`_tag` and the preceding `menuView` sequence that avoids `SessionTimeout` bodies.
+- Fixtures may be produced by external **`openrouter-capture`** (`discover` mode) then hand-curated into the app repo — see [OPENROUTER_CAPTURE.md](../OPENROUTER_CAPTURE.md). Do not commit raw capture trees or HARs.
 - Implement a minimal XML `OBJ_*` instance parser with unit tests (seed of `router-parser` in [ROUTER_RE_TOOLKIT.md](../ROUTER_RE_TOOLKIT.md)).
 - Expose read-only adapter capability only; do not POST Apply.
 

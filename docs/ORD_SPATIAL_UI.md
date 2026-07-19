@@ -166,7 +166,7 @@ DevTools × API laboratory. Three columns: **Endpoints | Request/Response | Pars
 - Request tabs: Headers · Query · Body · Raw · Replay (read-only default)  
 - Response tabs: XML tree · Normalized JSON · Raw · Diff · Generated types  
 
-Aligns with [ROUTER_RE_TOOLKIT.md](ROUTER_RE_TOOLKIT.md).
+Aligns with [ROUTER_RE_TOOLKIT.md](ROUTER_RE_TOOLKIT.md). Live crawling is external [OPENROUTER_CAPTURE.md](OPENROUTER_CAPTURE.md); the in-app Inspector (if built) imports redacted captures only.
 
 ---
 
