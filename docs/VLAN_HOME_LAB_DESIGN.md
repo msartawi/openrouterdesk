@@ -2,6 +2,8 @@
 
 This is a target design. Actual implementation depends on F6600P VLAN capabilities, switch support, and access-point SSID-to-VLAN support.
 
+Observed F6600P web API evidence for loopback/port VLAN assignment (`OBJ_LOOPBACK_VLAN_ID`, `VidStr`) is recorded in [RESEARCH_NOTES_F6600P.md](RESEARCH_NOTES_F6600P.md) and [ZTE_API_DISCOVERY_FRAMEWORK.md](ZTE_API_DISCOVERY_FRAMEWORK.md). That evidence confirms a read/Apply surface for VLAN IDs on bridge ports; it does **not** yet prove full 802.1Q isolation for this home/lab plan.
+
 ## Proposed segments
 
 | VLAN | Name | Example subnet | Purpose |
