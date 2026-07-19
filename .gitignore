@@ -10,10 +10,18 @@ coverage/
 .DS_Store
 Thumbs.db
 .vscode/settings.json
+
+# Cursor / coding-agent local operating files (never publish)
 .cursor/
+.claude/
+.codex/
+.agents/
 AGENT.md
 AGENTS.md
+CLAUDE.md
+GEMINI.md
 docs/ORCHESTRATION.md
+
 research/private/
 *.har
 *.pcap
