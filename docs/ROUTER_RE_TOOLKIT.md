@@ -1,20 +1,14 @@
 # Router Reverse-Engineering Toolkit (Phased Plan)
 
-Status: accepted research architecture (not implemented).  
+Status: **architecture review — not execution-ready until gaps below are designed into packages**.  
 Primary target: **ZTE F6600P** read-only MVP.  
 Non-goals until safety gates exist: live Apply/writes, firmware upload, exploit tooling.
 
-## Review summary
+## Maturity assessment
 
-This plan is the right shift away from page-by-page reverse engineering. Keep these constraints:
+The core direction (~70–75%) is sound: session abstraction, generic XML parsing, discovery, capture, type generation, SDK, Electron UI, multi-vendor layout.
 
-| Keep | Change / caution |
-|---|---|
-| Shared session + generic XML parser first | Prefer **vendor-agnostic** package names (`router-*`), not `zte-*` |
-| Endpoint discovery + scanner for coverage | Run only on routers you own/are authorized to admin; no credential guessing |
-| Type/SDK generation for speed | Generated write methods stay **stubs or dry-run** until ADR 0003 gates |
-| Electron UI talks only to SDK | Main process owns transport/credentials; renderer never sees XML or secrets |
-| F6600P as reference profile | Other ZTE / vendors are mapping work later, not MVP scope |
+**Not yet execution-ready** without the expansions in this document: full auth reverse engineering, safe-write controls, firmware-specific profiles, rollback/verification, provisional schema confidence, robust testing modes, credential security, and scanner rate limits.
 
 Observed F6600P evidence (`OBJ_LOOPBACK_VLAN_ID`, Apply `VidStr`, `SessionTimeout` vs warm session) remains the reference case. See [RESEARCH_NOTES_F6600P.md](RESEARCH_NOTES_F6600P.md).
 
@@ -22,222 +16,321 @@ Observed F6600P evidence (`OBJ_LOOPBACK_VLAN_ID`, Apply `VidStr`, `SessionTimeou
 
 ## Target repository layout
 
-Vendor-agnostic core with per-vendor profiles (preferred over `zte-*` packages):
-
 ```text
 openrouterdesk/
 ├── apps/
-│   ├── desktop/                 # OpenRouterDesk Electron app
-│   └── inspector/               # Optional local RE / discovery UI (dev)
+│   ├── desktop/                 # OpenRouterDesk (product)
+│   └── inspector/               # First-class RE workspace (lab)
 ├── packages/
-│   ├── router-core/             # HTTP, cookies, session, login, retries
-│   ├── router-parser/           # Generic ajax_response_xml_root / OBJ_* parser
-│   ├── router-sdk/              # Capability-oriented API (list/get; writes gated)
-│   ├── router-discovery/        # Tag crawler + endpoint scanner
-│   ├── router-recorder/         # Authorized Apply/POST capture → stubs
-│   ├── router-generator/        # Fixtures → TypeScript interfaces
-│   └── shared/                  # Shared contracts / redaction helpers
+│   ├── router-core/             # Session orchestration façade
+│   ├── router-auth/             # Login strategies, crypto, lockout
+│   ├── router-http/             # HttpClient, CookieJar, Request
+│   ├── router-parser/           # ajax_response_xml_root / OBJ_*
+│   ├── router-capture/          # Normalized CapturedExchange + redaction
+│   ├── router-discovery/        # Broad static/dynamic endpoint discovery
+│   ├── router-schema/           # Provisional field inference
+│   ├── router-generator/        # Promote confident schemas → TS
+│   ├── router-safety/           # Risk class, dry-run, backup, transaction
+│   ├── router-testing/          # Fixtures, mock router, live harness
+│   ├── router-sdk/              # Capability API (reads first)
+│   └── shared/                  # Contracts, redaction helpers
 ├── vendors/
 │   ├── zte/
-│   │   ├── f6600p/              # First profile
-│   │   └── h3601p/              # Later
-│   ├── huawei/                  # Later
-│   ├── nokia/                   # Later
-│   └── tp-link/                 # Later
+│   │   ├── common/
+│   │   ├── f6600p/
+│   │   │   ├── firmware-v1/     # Firmware-level profiles
+│   │   │   └── firmware-v2/
+│   │   └── h3601p/
+│   └── generic/
+├── fixtures/
+│   ├── responses/               # Sanitized XML/HTML bodies
+│   └── captures/                # Redacted CapturedExchange sets
 ├── docs/
 ├── examples/
 └── tests/
 ```
 
-Migration note: the current tree (`src/main`, `src/adapters`, …) stays until packages are carved out. Do not big-bang restructure before Phase 1–2 work.
+Migration note: keep current `src/` until packages exist. Do not big-bang restructure.
 
 ---
 
-## Phase 1 — Router session engine (`router-core`)
+## Gap 1 — Authentication strategy (`router-auth` + `router-http`)
 
-Auth and HTTP only:
+Highest priority. Without this, scanner/SDK fail unpredictably.
 
-```text
-packages/router-core/
-  HttpClient.ts
-  CookieJar.ts
-  Session.ts
-  Login.ts
-  Request.ts
-```
+Required capabilities:
 
-Example:
+| Capability | Notes |
+|---|---|
+| Login page discovery | Locate login entry / scripts from root GUI |
+| Challenge / nonce retrieval | e.g. `login_token` family |
+| Password encryption / hashing | Match router JS (observed: SHA-256 + token; confirm per firmware) |
+| RSA / AES handling | Port algorithms from router JavaScript; never invent crypto |
+| Cookie persistence | `CookieJar` across requests |
+| Session refresh / warm-up | `menuView` / page-entry before data tags |
+| `SessionTimeout` in HTTP 200 | Body classification ≠ status code |
+| Automatic re-login | Bounded retries; never tight loops |
+| Logout | Always on session dispose |
+| Login lockout protection | Backoff; surface lockout errors; no credential spraying |
 
 ```ts
-const router = new RouterSession({
+const session = await createSession({
   host: "192.168.1.1",
+  profile: "zte/f6600p/firmware-v1",
   username: "admin",
-  password: "*****", // never log; vault in desktop app
+  password: "*****", // vault in desktop; never log
 });
 
-await router.login();
+await session.login();
 ```
-
-Requirements specific to F6600P observations:
-
-- Detect `SessionTimeout` (or equivalent) bodies that still return HTTP 200.
-- Support **session warm-up** via documented `menuView` / page-entry sequences before data tags.
-- Local-address checks, timeouts, response-size bounds, TOFU/fingerprint for HTTPS.
-- No secrets in logs.
 
 ---
 
-## Phase 2 — Generic XML parser (`router-parser`)
+## Gap 2 — Safe write protection (`router-safety`)
 
-ZTE (and similar) responses share a shape:
+Classify every operation:
 
-```xml
-<ajax_response_xml_root>
-  <IF_ERRORID>...</IF_ERRORID>
-  <OBJ_XXXX>
-    <Instance>
-      <ParaName>...</ParaName>
-      <ParaValue>...</ParaValue>
-    </Instance>
-  </OBJ_XXXX>
-</ajax_response_xml_root>
-```
-
-One parser for all endpoints:
+| Class | Examples | Default |
+|---|---|---|
+| Read-only GET | inventory, VLAN list | Allowed when authorized |
+| Safe POST | logout, language switch (profile-declared) | Allowlist only |
+| Config-changing POST | Apply / `IF_ACTION=Apply` | Gated |
+| Reboot / reset / firmware | reboot, restore, upload | Deny by default |
+| Destructive | factory reset, flash | Deny; never auto-scan |
 
 ```ts
-parse(xml) → {
-  success: boolean;
-  errorId?: string;
-  objects: {
-    OBJ_LOOPBACK_VLAN_ID: Array<{
-      _InstID: string;
-      PortID: string;
-      vlanCount: number | string;
-      VidStr: string;
-    }>;
-  };
+await router.applyChange(change, {
+  dryRun: true,
+  requireConfirmation: true,
+  createBackup: true,
+});
+```
+
+**Scanner must never automatically execute unknown POST endpoints.**
+
+Aligns with [ADR 0003](decisions/0003-safe-write-operations.md).
+
+---
+
+## Gap 3 — Router capability profiles (`vendors/*`)
+
+Do not assume all ZTE devices share fields. Profiles are **firmware-specific**:
+
+```ts
+interface RouterProfile {
+  vendor: string;
+  model: string;
+  firmware: string;
+  authStrategy: string;
+  endpoints: EndpointDefinition[];
+  quirks: string[]; // e.g. "session-warmup-via-menuView"
 }
 ```
 
-Vendor profiles may normalize types (`VidStr` → `vids: number[]`) in the SDK layer.
+Example paths:
+
+```text
+vendors/zte/f6600p/firmware-v1/
+vendors/zte/f6600p/firmware-v2/
+vendors/zte/h3601p/v9/
+```
 
 ---
 
-## Phase 3 — Endpoint discovery (`router-discovery`)
+## Gap 4 — Broader endpoint discovery (`router-discovery`)
 
-Do not hardcode hundreds of Lua tags. After authorized login:
+`_tag=*.lua` alone is insufficient. Also scan for:
 
 ```text
-GET /
-  → parse HTML / menu scripts
-  → extract _tag=*.lua (and related tags)
-  → store { tag, menu, page }
+_tag  _type  IF_ACTION  _InstID  OBJ_  ParaName
+ajaxGet  ajaxPost  $.ajax  $.get  $.post  fetch
+form action
 ```
 
-Example output:
+Inspect: inline/external JS, hidden inputs, menu JSON, onclick handlers, dynamically built URLs, POST form serialization, iframe pages.
 
-```json
+Authorized devices only; no brute-force credential or tag guessing.
+
+---
+
+## Gap 5 — Normalized capture format (`router-capture`)
+
+```ts
+interface CapturedExchange {
+  timestamp: string;
+  method: string;
+  path: string;
+  query: Record<string, string>;
+  requestHeaders: Record<string, string>;
+  requestBody?: Record<string, string>;
+  status: number;
+  contentType?: string;
+  responseBody: string;
+  sessionState: "valid" | "timeout" | "unknown";
+}
+```
+
+Auto-redact at least: `password`, `SID`, `token`, `nonce`, `authorization`, and known cookie names. Prefer fixtures under `fixtures/captures/` over raw HARs in git.
+
+---
+
+## Gap 6 — XML parser edge cases (`router-parser`)
+
+Must handle:
+
+- Repeated / empty `OBJ_*` nodes (F6600P loopback already shows empties before a populated node)
+- Repeated `Instance` nodes
+- Missing `ParaValue`, duplicate `ParaName`
+- Numerics as strings; booleans as `0/1`, `true/false`, or empty
+- Malformed XML; non-XML HTML errors
+- `SessionTimeout` bodies with status 200
+
+---
+
+## Gap 7 — Provisional schema inference (`router-schema`)
+
+Do **not** promote `vlanCount: number` from one sample.
+
+```ts
+type InferredField = {
+  observedTypes: Array<"string" | "number" | "boolean" | "empty">;
+  required: boolean;
+  samples: string[]; // redacted / bounded
+  confidence: number;
+};
+```
+
+`router-generator` promotes to stable SDK types only after enough observations + human/profile review.
+
+---
+
+## Gap 8 — Backup, verify, rollback (`router-safety`)
+
+Before any live write:
+
+1. Fetch current state  
+2. Save request/response evidence (redacted)  
+3. Diff  
+4. Apply (only after confirmation)  
+5. Read back + verify  
+6. Rollback when possible  
+
+```ts
+const tx = await router.transaction();
+await tx.snapshot("loopback-vlan");
+await tx.apply(change);
+await tx.verify();
+await tx.commit();
+```
+
+---
+
+## Gap 9 — Testing layers (`router-testing`)
+
+| Mode | Where |
+|---|---|
+| Unit tests | parsers, redaction, auth crypto helpers with fixtures |
+| Recorded-response tests | replay `CapturedExchange` / XML fixtures |
+| Mock-router integration | fake transport in CI |
+| Live-router tests | **opt-in only** |
+
+```bash
+RUN_LIVE_ROUTER_TESTS=true pnpm test:live
+```
+
+Normal CI must never modify a real router. See [TEST_STRATEGY.md](TEST_STRATEGY.md).
+
+---
+
+## Gap 10 — Inspector as first-class app (`apps/inspector`)
+
+Lab workspace features:
+
+- Network capture import  
+- Endpoint list + risk level  
+- XML tree viewer  
+- Request replay (read-only by default)  
+- Response diff  
+- Session state  
+- Generated TypeScript preview  
+- Firmware / model metadata  
+- Export to router profile  
+
+Must not ship unrestricted write tooling in production desktop builds.
+
+---
+
+## Gap 11 — Electron security (`apps/desktop`)
+
+- HTTP only in main process  
+- `contextIsolation: true`, `nodeIntegration: false`  
+- Strict IPC schemas; allowlisted channels  
+- Encrypted credential vault; no password/SID logs  
+- Restrict navigation / external URLs  
+
+```ts
+// Renderer — typed bridge only
+window.routerApi.getLoopbackVlans();
+```
+
+Never send router HTTP from the renderer. See [THREAT_MODEL.md](THREAT_MODEL.md), [SECURE_STORAGE.md](SECURE_STORAGE.md).
+
+---
+
+## Gap 12 — Discovery boundaries
+
+```ts
 {
-  "tag": "loopback_vlan_lua.lua",
-  "menu": "Network",
-  "page": "Loopback"
+  maxRequests: 500,
+  concurrency: 1,
+  delayMs: 250,
+  readOnly: true,
+  allowTags: [],
+  denyTags: ["reboot", "reset", "firmware", "restore"],
 }
 ```
 
-Rules: normal GUI assets only; no brute-force of tags; sanitize before commit.
+Routers are fragile; high concurrency can crash the web UI.
 
 ---
 
-## Phase 4 — Endpoint scanner (`router-discovery`)
+## Original phases (still valid, expanded)
 
-For each discovered tag, issue authorized reads such as:
+### Phase A — Session + auth (`router-http`, `router-auth`, `router-core`)
 
-```text
-GET /?_type=menuData&_tag=XXXX
-```
+Login, cookies, timeout detection, re-login, logout, lockout protection, warm-up.
 
-(and other observed `_type` families: `menuView`, `hiddenData`, …)
+### Phase B — Parser (`router-parser`)
 
-Record status/body class: `200`, `404`, `403`, `SessionTimeout`, XML `OBJ_*`, HTML.
+Generic `OBJ_*` parse with edge cases above; unit tests from fixtures.
 
-Emit `report.json`:
+### Phase C — Discovery + scanner (`router-discovery`)
 
-```json
-{
-  "tag": "loopback_vlan_lua.lua",
-  "status": 200,
-  "object": "OBJ_LOOPBACK_VLAN_ID",
-  "instances": 1
-}
-```
+Broad static/dynamic discovery; **read-only** scanner with rate limits; emit `report.json`.
 
----
+### Phase D — Capture + schema (`router-capture`, `router-schema`, `router-generator`)
 
-## Phase 5 — POST recorder (`router-recorder`)
+Normalized exchanges; provisional inference; promote types carefully.
 
-On authorized Apply clicks, capture POST bodies and generate **SDK stubs**:
+### Phase E — Safety + SDK (`router-safety`, `router-sdk`, `vendors/*`)
 
-```ts
-// Generated stub — live Apply disabled until write-safety gates
-router.loopback.save({ /* fields */ });
-```
+Read APIs first; writes only through `applyChange` / transactions.
 
-Never auto-enable live writes from recordings. Store redacted fixtures + field maps only.
+### Phase F — Apps
+
+`apps/desktop` consumes SDK via IPC. `apps/inspector` is the RE workspace.
 
 ---
 
-## Phase 6 — Type generator (`router-generator`)
+## Practical implementation order
 
-From observed ParaName sets, generate interfaces, e.g.:
-
-```ts
-export interface LoopbackVlan {
-  portId: string;
-  vlanCount: number;
-  vidStr: string;
-}
-```
-
-Prefer generating from sanitized fixtures in CI, not from live routers.
-
----
-
-## Phase 7 — SDK (`router-sdk` + `vendors/*`)
-
-Capability-shaped API:
-
-```ts
-await router.loopback.list();
-await router.wifi.list();
-await router.dhcp.get();
-await router.firewall.rules();
-await router.portForward.list();
-```
-
-Write-shaped methods (`update` / `save` / `enable`) exist only behind capability flags and ADR 0003 gates. Unsupported operations fail closed.
-
----
-
-## Phase 8 — OpenRouterDesk (`apps/desktop`)
-
-```text
-UI  →  SDK (via main/IPC)  →  Router
-```
-
-The UI never sees XML, cookies, or passwords. Inspector (`apps/inspector`) is optional and must not ship privileged write tooling in production builds by default.
-
----
-
-## Implementation order (practical)
-
-1. Sanitized fixtures for `OBJ_LOOPBACK_VLAN_ID` + session warm-up sequence.  
-2. Phase 2 parser + unit tests (works offline).  
-3. Phase 1 session against F6600P (authorized lab only).  
-4. Phase 3–4 discovery/scanner → coverage report.  
-5. Phase 6 types for confirmed read objects.  
-6. Wire read-only paths into the desktop adapter.  
-7. Phase 5/7 writes only after snapshot/diff/approval/rollback exist.
+1. Sanitized `OBJ_LOOPBACK_VLAN_ID` fixture + warm-up capture (`CapturedExchange`).  
+2. Parser + edge-case unit tests.  
+3. Auth strategy for F6600P firmware profile (lab only).  
+4. Read-only discovery/scanner with rate limits.  
+5. Provisional schemas → cautious SDK reads in desktop.  
+6. Inspector MVP (import capture, XML tree, endpoint list).  
+7. Writes only after safety transaction + ADR 0003 gates.
 
 ---
 
@@ -246,7 +339,10 @@ The UI never sees XML, cookies, or passwords. Inspector (`apps/inspector`) is op
 - [ZTE_API_DISCOVERY_FRAMEWORK.md](ZTE_API_DISCOVERY_FRAMEWORK.md)
 - [API_REVERSE_ENGINEERING.md](API_REVERSE_ENGINEERING.md)
 - [ROUTER_ADAPTER_CONTRACT.md](ROUTER_ADAPTER_CONTRACT.md)
+- [TEST_STRATEGY.md](TEST_STRATEGY.md)
 - [HLA.md](HLA.md)
+- [THREAT_MODEL.md](THREAT_MODEL.md)
+- [SECURE_STORAGE.md](SECURE_STORAGE.md)
 - [decisions/0002-adapter-architecture.md](decisions/0002-adapter-architecture.md)
 - [decisions/0003-safe-write-operations.md](decisions/0003-safe-write-operations.md)
 - [decisions/0005-router-re-toolkit.md](decisions/0005-router-re-toolkit.md)

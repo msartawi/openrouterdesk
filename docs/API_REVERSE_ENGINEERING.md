@@ -26,6 +26,8 @@ For each endpoint record:
 - Failure behavior and session-expiry behavior.
 - Confidence and source.
 
+Prefer the normalized `CapturedExchange` shape (method, path, query, redacted headers/body, status, `sessionState`) described in [ROUTER_RE_TOOLKIT.md](ROUTER_RE_TOOLKIT.md). Auto-redact `password`, `SID`, `token`, `nonce`, and `authorization` before any commit.
+
 ## F6600P currently observed
 
 ```text

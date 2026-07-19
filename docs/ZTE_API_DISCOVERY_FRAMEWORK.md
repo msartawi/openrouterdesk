@@ -118,12 +118,15 @@ Authorized GUI session
 
 ## Immediate backlog (docs → fixtures → parsers)
 
-1. Capture sanitized read fixture for `OBJ_LOOPBACK_VLAN_ID`.
-2. Document the exact GET URL/`_type`/`_tag` that returned it.
+1. Capture sanitized read fixture for `OBJ_LOOPBACK_VLAN_ID` (include empty repeated nodes if observed).
+2. Document the exact GET URL/`_type`/`_tag` that returned it as a `CapturedExchange`.
 3. Capture the preceding menuView / page-load sequence that restored a working session.
-4. Build a shared XML `OBJ_*` parser with unit tests.
-5. Enumerate additional authenticated tags via GUI navigation (LAN, WAN, Wi‑Fi, firewall, system).
-6. Keep writes disabled in the app until ADR 0003 gates exist for VLAN Apply.
+4. Build a shared XML `OBJ_*` parser with edge-case unit tests (seed of `router-parser`).
+5. Reverse the F6600P auth strategy (token/hash/cookies/lockout) before relying on scanners.
+6. Enumerate tags with broad JS/HTML discovery; scan read-only with rate limits.
+7. Keep writes disabled until `router-safety` + ADR 0003 gates exist.
+
+See [ROUTER_RE_TOOLKIT.md](ROUTER_RE_TOOLKIT.md) for the full execution-gap checklist.
 
 ## Related docs
 
