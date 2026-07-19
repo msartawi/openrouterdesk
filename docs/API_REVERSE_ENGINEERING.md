@@ -42,6 +42,27 @@ GET  /?_type=menuView&_tag=<dynamic-tag>
 
 The login JavaScript appears to derive a password value using a login token and SHA-256. The exact request contract must be captured from an authorized browser session and represented with sanitized fixtures before implementation.
 
+### Confirmed object envelope: Loopback VLAN
+
+Read responses can return XML objects such as `OBJ_LOOPBACK_VLAN_ID` with `_InstID`, `PortID`, `vlanCount`, and `VidStr` parameters.
+
+Observed write Apply body fields:
+
+```text
+IF_ACTION=Apply
+_InstID=...
+PortID=...
+VidStr=...
+```
+
+Treat Apply as a documented write API only. Implementation remains blocked until dry-run, approval, snapshot, and rollback gates exist.
+
+### SessionTimeout vs successful object responses
+
+HTTP 200 alone does not mean the payload is usable. Bodies may be session-timeout markers until a GUI page refresh / `menuView` re-establishes authenticated context, after which the same family of requests returns `OBJ_*` XML. Always record the preceding navigation when a data tag first succeeds.
+
+For the full discovery/SDK plan (auto-enumerate tags, parse XML, generate models, map across ZTE siblings), see [ZTE_API_DISCOVERY_FRAMEWORK.md](ZTE_API_DISCOVERY_FRAMEWORK.md) and [RESEARCH_NOTES_F6600P.md](RESEARCH_NOTES_F6600P.md).
+
 ## Capture workflow
 
 1. Start with a clean browser profile.

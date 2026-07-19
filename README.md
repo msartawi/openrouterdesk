@@ -87,6 +87,9 @@ src/
   shared/               Shared contracts and validation types
 
 docs/                   Architecture, plans, security, research
+                        (start with START_HERE.md; F6600P API notes in
+                        docs/RESEARCH_NOTES_F6600P.md and
+                        docs/ZTE_API_DISCOVERY_FRAMEWORK.md)
 .github/                 CI, release, issue and PR templates
 scripts/                 Reproducible build and verification scripts
 ```

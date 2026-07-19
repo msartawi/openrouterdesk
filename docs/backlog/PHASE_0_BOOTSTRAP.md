@@ -39,6 +39,13 @@ Each item should normally be a separate pull request.
 - Return confidence/evidence.
 - Use sanitized fixtures and a fake transport in CI.
 
+## P0-07: Loopback VLAN read fixture + OBJ_* parser spike
+
+- Add a sanitized fixture for `OBJ_LOOPBACK_VLAN_ID` (see research notes / discovery framework).
+- Record the exact `_type`/`_tag` and the preceding `menuView` sequence that avoids `SessionTimeout` bodies.
+- Implement a minimal XML `OBJ_*` instance parser with unit tests.
+- Expose read-only adapter capability only; do not POST Apply.
+
 ## P0 exit criteria
 
 - CI green.
