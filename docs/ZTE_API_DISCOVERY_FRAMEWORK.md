@@ -73,39 +73,20 @@ Interpretation (hypothesis until more fixtures exist):
 
 ## Proposed SDK layout
 
-Package shape for a future ZTE client (paths illustrative):
+Prefer **vendor-agnostic** packages (`router-core`, `router-parser`, `router-sdk`, …) with `vendors/zte/f6600p/` profiles — not a hard `zte-*` monorepo. Full phased plan: [ROUTER_RE_TOOLKIT.md](ROUTER_RE_TOOLKIT.md) and [ADR 0005](decisions/0005-router-re-toolkit.md).
+
+Illustrative capability modules (implemented behind the SDK, not in the Electron renderer):
 
 ```text
-zte-sdk/
-  auth/
-    login.ts
-  network/
-    lan.ts
-    wan.ts
-    vlan.ts
-    dhcp.ts
-  wifi/
-    radio.ts
-    guest.ts
-    wps.ts
-  firewall/
-    acl.ts
-    nat.ts
-    portforward.ts
-  diagnostics/
-    ping.ts
-    traceroute.ts
-  system/
-    reboot.ts
-    backup.ts
-    firmware.ts
-  discovery/
-    enumerateTags.ts
-    parseXmlObjects.ts
-    generateModels.ts
+network/  lan, wan, vlan, dhcp
+wifi/     radio, guest, wps
+firewall/ acl, nat, portforward
+diagnostics/ ping, traceroute
+system/   reboot, backup, firmware
+discovery/ enumerateTags, parseXmlObjects, generateModels
 ```
 
-OpenRouterDesk consumes this through the F6600P adapter; it does not embed raw router pages or privileged browser automation in the renderer.
+OpenRouterDesk consumes this through adapters; it does not embed raw router pages or privileged browser automation in the renderer.
 
 ## Discovery pipeline
 
@@ -146,9 +127,11 @@ Authorized GUI session
 
 ## Related docs
 
+- [ROUTER_RE_TOOLKIT.md](ROUTER_RE_TOOLKIT.md) — phased toolkit + preferred monorepo layout
 - [RESEARCH_NOTES_F6600P.md](RESEARCH_NOTES_F6600P.md)
 - [API_REVERSE_ENGINEERING.md](API_REVERSE_ENGINEERING.md)
 - [ROUTER_ADAPTER_CONTRACT.md](ROUTER_ADAPTER_CONTRACT.md)
 - [VLAN_HOME_LAB_DESIGN.md](VLAN_HOME_LAB_DESIGN.md)
 - [decisions/0002-adapter-architecture.md](decisions/0002-adapter-architecture.md)
 - [decisions/0003-safe-write-operations.md](decisions/0003-safe-write-operations.md)
+- [decisions/0005-router-re-toolkit.md](decisions/0005-router-re-toolkit.md)

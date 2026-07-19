@@ -42,6 +42,8 @@ Owns privileged operations, session state, credentials, transport, audit logging
 
 Each adapter identifies compatible devices, handles model-specific authentication and parsing, reports capabilities, and returns normalized data. Adapters cannot directly update the UI.
 
+Longer-term, adapters should consume a vendor-agnostic reverse-engineering toolkit (`router-core` / `router-parser` / `router-sdk`, with profiles under `vendors/…`). See [ROUTER_RE_TOOLKIT.md](ROUTER_RE_TOOLKIT.md) and [ADR 0005](decisions/0005-router-re-toolkit.md). The current `src/adapters` tree remains until that migration starts.
+
 ### Safety orchestrator
 
 Future write operations pass through validation, snapshot, diff, approval, execution, verification, and rollback records. Adapters provide model-specific implementation; orchestration remains model-neutral.
