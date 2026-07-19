@@ -44,6 +44,8 @@ Each adapter identifies compatible devices, handles model-specific authenticatio
 
 Longer-term, adapters should consume a vendor-agnostic reverse-engineering toolkit (`router-core` / `router-parser` / `router-sdk`, with profiles under `vendors/…`). See [ROUTER_RE_TOOLKIT.md](ROUTER_RE_TOOLKIT.md) and [ADR 0005](decisions/0005-router-re-toolkit.md). The current `src/adapters` tree remains until that migration starts.
 
+The renderer visual direction is the Spatial Network Console ([ORD_SPATIAL_UI.md](ORD_SPATIAL_UI.md), [ADR 0006](decisions/0006-spatial-network-console-ui.md)). Presentation stays in the renderer; router I/O stays in main.
+
 ### Safety orchestrator
 
 Future write operations pass through validation, snapshot, diff, approval, execution, verification, and rollback records. Adapters provide model-specific implementation; orchestration remains model-neutral.

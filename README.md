@@ -86,10 +86,9 @@ src/
   services/             Credential vault, audit, backup, validation
   shared/               Shared contracts and validation types
 
-docs/                   Architecture, plans, security, research
-                        (START_HERE.md; F6600P notes in
-                        docs/RESEARCH_NOTES_F6600P.md;
-                        toolkit plan in docs/ROUTER_RE_TOOLKIT.md)
+docs/                   Architecture, plans, security, research, UI direction
+                        (START_HERE.md; toolkit: ROUTER_RE_TOOLKIT.md;
+                        UI: ORD_SPATIAL_UI.md)
 .github/                 CI, release, issue and PR templates
 scripts/                 Reproducible build and verification scripts
 ```
