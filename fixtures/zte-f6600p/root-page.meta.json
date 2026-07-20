@@ -1,0 +1,5 @@
+{
+  "description": "Sanitized F6600P login root HTML markers for offline probe tests.",
+  "source": "Derived from authorized local capture signatures; no credentials or session material.",
+  "usedBy": "P0-06 probeF6600pRootPage / scoreF6600pRootHtml"
+}

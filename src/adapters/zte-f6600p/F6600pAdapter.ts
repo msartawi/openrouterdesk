@@ -5,28 +5,42 @@ import type {
   LoopbackVlan,
 } from '../../shared/contracts';
 import { parseLoopbackVlansXml } from './loopbackVlan';
+import { probeF6600pRootPage } from './probe';
 
 /**
  * Read-only F6600P adapter.
  *
- * Live transport/session are not implemented yet. VLAN parsing is available
- * offline from sanitized XML fixtures (P0-07).
+ * Probe uses injected HttpTransport (fixture in CI, live FetchRouterTransport in main).
+ * VLAN XML parsing remains offline/fixture-oriented. No configuration writes.
  */
 export class F6600pAdapter implements RouterAdapter {
   readonly id = 'zte-f6600p';
   readonly displayName = 'ZTE F6600P';
-  readonly capabilities = new Set(['vlan.inventory.read']);
+  readonly capabilities = new Set(['vlan.inventory.read', 'device.probe']);
 
-  async probe(_context: RouterConnectionContext): Promise<AdapterProbeResult> {
-    return {
-      adapterId: this.id,
-      compatible: false,
-      confidence: 'low',
-      evidence: [
-        'Live F6600P probing has not been implemented yet.',
-        'Offline OBJ_* / loopback VLAN XML parsing is available for fixtures.',
-      ],
-    };
+  async probe(context: RouterConnectionContext): Promise<AdapterProbeResult> {
+    if (!context.transport) {
+      return {
+        adapterId: this.id,
+        compatible: false,
+        confidence: 'low',
+        evidence: [
+          'No transport provided. Inject FixtureTransport or FetchRouterTransport for probing.',
+        ],
+      };
+    }
+
+    try {
+      return await probeF6600pRootPage(context, context.transport);
+    } catch (err) {
+      const message = err instanceof Error ? err.message : 'Probe failed.';
+      return {
+        adapterId: this.id,
+        compatible: false,
+        confidence: 'low',
+        evidence: [`Probe error: ${message}`],
+      };
+    }
   }
 
   async getConnectedDevices(_context: RouterConnectionContext): Promise<DeviceNode[]> {
