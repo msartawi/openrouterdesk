@@ -1,6 +1,7 @@
 # openrouter-capture — Standalone API Discovery Helper
 
-Status: **design / docs only — not implemented in this repository**.  
+Status: **Stage 1 implemented in sibling** [`msartawi/openrouter-capture`](https://github.com/msartawi/openrouter-capture) (`discover` live; `simulate`/`verify` later).  
+OpenRouterDesk consumes **hand-curated sanitized fixtures** only (see `fixtures/zte-f6600p/`).  
 Role: internal **local development** Playwright helper to discover router APIs for OpenRouterDesk adapters.  
 Placement: sibling project `c:\Projects\openrouter-capture\` (or equivalent). **Never** ship crawler source or raw captures inside the public OpenRouterDesk app tree.
 
