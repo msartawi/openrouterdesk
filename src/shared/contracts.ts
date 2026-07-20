@@ -32,6 +32,16 @@ export interface DeviceNode {
   lastSeen?: string;
 }
 
+/** Observed F6600P loopback/port VLAN assignment (read-only). */
+export interface LoopbackVlan {
+  instId: string;
+  portId: string;
+  vlanCount: number;
+  vids: number[];
+  source: EvidenceSource;
+  confidence: Confidence;
+}
+
 export interface DashboardSnapshot {
   appVersion: string;
   mode: 'mock' | 'live';

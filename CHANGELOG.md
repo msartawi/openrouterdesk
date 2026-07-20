@@ -6,6 +6,11 @@ All notable changes will be documented here.
 
 ### Added
 
+- Sanitized F6600P `OBJ_LOOPBACK_VLAN_ID` fixture and generic `OBJ_*` XML parser (P0-07).
+- Read-only loopback VLAN normalization (`vlan.inventory.read` capability on F6600P adapter; offline/fixture only).
+
+### Notes
+
 - Initial Electron, React, and TypeScript scaffold.
 - Security-first main/preload/renderer separation.
 - Router-adapter contract and mock adapter.

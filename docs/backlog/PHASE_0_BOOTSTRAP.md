@@ -41,11 +41,11 @@ Each item should normally be a separate pull request.
 
 ## P0-07: Loopback VLAN read fixture + OBJ_* parser spike
 
-- Add a sanitized fixture for `OBJ_LOOPBACK_VLAN_ID` (see research notes / discovery framework).
-- Record the exact `_type`/`_tag` and the preceding `menuView` sequence that avoids `SessionTimeout` bodies.
-- Fixtures may be produced by external **`openrouter-capture`** (`discover` mode) then hand-curated into the app repo — see [OPENROUTER_CAPTURE.md](../OPENROUTER_CAPTURE.md). Do not commit raw capture trees or HARs.
-- Implement a minimal XML `OBJ_*` instance parser with unit tests (seed of `router-parser` in [ROUTER_RE_TOOLKIT.md](../ROUTER_RE_TOOLKIT.md)).
-- Expose read-only adapter capability only; do not POST Apply.
+- [x] Add a sanitized fixture for `OBJ_LOOPBACK_VLAN_ID` (`fixtures/zte-f6600p/obj-loopback-vlan.xml`).
+- [x] Implement a minimal XML `OBJ_*` instance parser with unit tests (`src/adapters/zte-f6600p/parseObjXml.ts`).
+- [x] Normalize to `LoopbackVlan` domain rows; declare `vlan.inventory.read` (offline/fixture parse only).
+- [ ] Record the exact `_type`/`_tag` + `menuView` warm-up sequence beside the fixture (metadata still open).
+- [ ] Wire live read session once P0-05 transport exists — do not POST Apply.
 
 ## P0 exit criteria
 

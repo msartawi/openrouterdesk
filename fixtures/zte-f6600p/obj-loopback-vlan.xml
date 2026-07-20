@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  Sanitized F6600P fixture derived from an authorized local capture
+  (loopback_vlan_lua.lua / OBJ_LOOPBACK_VLAN_ID).
+  No credentials, session tokens, or household identifiers.
+  Empty OBJ_LOOPBACK_VLAN_ID nodes before the populated instance are intentional.
+-->
+<ajax_response_xml_root>
+  <IF_ERRORPARAM>SUCC</IF_ERRORPARAM>
+  <IF_ERRORTYPE>SUCC</IF_ERRORTYPE>
+  <IF_ERRORSTR>SUCC</IF_ERRORSTR>
+  <IF_ERRORID>0</IF_ERRORID>
+  <OBJ_LOOPBACK_VLAN_ID></OBJ_LOOPBACK_VLAN_ID>
+  <OBJ_LOOPBACK_VLAN_ID></OBJ_LOOPBACK_VLAN_ID>
+  <OBJ_LOOPBACK_VLAN_ID></OBJ_LOOPBACK_VLAN_ID>
+  <OBJ_LOOPBACK_VLAN_ID>
+    <Instance>
+      <ParaName>_InstID</ParaName>
+      <ParaValue>DEV.LOOP.VLAN1</ParaValue>
+      <ParaName>PortID</ParaName>
+      <ParaValue>DEV.BRIDGING.BR1.BRPORT5</ParaValue>
+      <ParaName>vlanCount</ParaName>
+      <ParaValue>1</ParaValue>
+      <ParaName>VidStr</ParaName>
+      <ParaValue>1</ParaValue>
+    </Instance>
+  </OBJ_LOOPBACK_VLAN_ID>
+</ajax_response_xml_root>

@@ -1,0 +1,8 @@
+{
+  "object": "OBJ_LOOPBACK_VLAN_ID",
+  "observedDataTag": "loopback_vlan_lua.lua",
+  "observedType": "menuData",
+  "source": "Authorized local F6600P capture via openrouter-capture; body sanitized for public fixtures.",
+  "warmUp": "Record exact preceding menuView sequence in a follow-up; SessionTimeout bodies must be classified separately.",
+  "write": "Apply / IF_ACTION documented but intentionally not implemented."
+}
