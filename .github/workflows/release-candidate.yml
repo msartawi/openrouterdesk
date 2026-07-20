@@ -7,16 +7,19 @@ on:
         description: Human-readable purpose of this candidate
         required: true
         type: string
+  push:
+    tags:
+      - 'v*-rc*'
+      - 'v*-rc.*'
 
 permissions:
-  contents: read
+  contents: write
   id-token: write
   attestations: write
 
 jobs:
   build:
     runs-on: windows-2025
-    environment: release-candidate
     steps:
       - name: Checkout
         uses: actions/checkout@v7
@@ -46,7 +49,7 @@ jobs:
         with:
           subject-path: release/*
 
-      - name: Upload unsigned candidate
+      - name: Upload unsigned candidate artifact
         uses: actions/upload-artifact@v7
         with:
           name: openrouterdesk-unsigned-release-candidate
@@ -54,6 +57,18 @@ jobs:
           if-no-files-found: error
           retention-days: 14
 
-# This workflow intentionally does not publish a GitHub Release.
-# Add a separate protected signed-release workflow after SignPath, Store,
-# or OV cloud-signing governance is configured.
+      - name: Publish GitHub prerelease
+        if: startsWith(github.ref, 'refs/tags/')
+        shell: pwsh
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          $note = @'
+Unsigned Windows NSIS release candidate for tester feedback.
+
+**Not signed.** Do not use for production. Live router writes and firmware upload remain disabled.
+'@
+          gh release create "${{ github.ref_name }}" (Get-ChildItem release -File | ForEach-Object { $_.FullName }) `
+            --prerelease `
+            --title "OpenRouterDesk ${{ github.ref_name }} (unsigned RC)" `
+            --notes $note

@@ -1,6 +1,6 @@
 {
   "name": "openrouterdesk",
-  "version": "0.1.0",
+  "version": "0.1.1-rc.1",
   "private": true,
   "description": "Security-first open-source Windows desktop manager for supported routers, beginning with ZTE F6600P.",
   "license": "MIT",

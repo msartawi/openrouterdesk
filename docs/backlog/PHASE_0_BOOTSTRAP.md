@@ -28,16 +28,18 @@ Each item should normally be a separate pull request.
 
 ## P0-05: Implement safe router transport
 
-- HTTP/HTTPS in main process.
-- Local-address checks, timeout, cancellation, response-size bounds.
-- Certificate fingerprint trust record.
-- No redirects by default.
+- [x] HTTP/HTTPS in main process (`FetchRouterTransport`).
+- [x] Local-address checks (`resolveLocalRouterUrl` / private IPv4 only).
+- [x] Timeout, cancellation, response-size bounds.
+- [x] Certificate fingerprint trust record (TOFU memory/file stores).
+- [x] No redirects by default (3xx returned without follow).
+- [x] Fixture transport for CI.
 
 ## P0-06: F6600P probe
 
-- Detect root page signatures without authentication.
-- Return confidence/evidence.
-- Use sanitized fixtures and a fake transport in CI.
+- [x] Detect root page signatures without authentication.
+- [x] Return confidence/evidence.
+- [x] Use sanitized fixtures and a fake transport in CI.
 
 ## P0-07: Loopback VLAN read fixture + OBJ_* parser spike
 
