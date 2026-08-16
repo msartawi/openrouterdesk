@@ -116,7 +116,7 @@ export class FetchRouterTransport implements HttpTransport {
       };
 
       if (url.protocol === 'https:') {
-        (requestOptions as https.RequestOptions).rejectUnauthorized = false;
+        (requestOptions as https.RequestOptions).rejectUnauthorized = true;
         (requestOptions as https.RequestOptions).servername = url.hostname;
       }
 
